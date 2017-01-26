@@ -1,0 +1,29 @@
+{
+    "name": "gnarlabs/laravel-request-entity",
+    "description": "Request entity for laravel",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nate Lantz",
+            "email": "mrnatelantz@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "illuminate/validation": "^5.3",
+        "symfony/translation": "^3.1",
+        "illuminate/http": "^5.3",
+        "phpunit/phpunit": "^5.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "GnarLabs\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "GnarLabsTests\\": "tests/"
+        }
+    }
+}
