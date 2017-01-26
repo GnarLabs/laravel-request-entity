@@ -1,10 +1,10 @@
 <?php
 
-namespace GnarLabsTests;
+namespace GnarLabs\Tests\Requests;
 
-use GnarLabsTests\BaseTest;
+use GnarLabs\Tests\TestCase;
 
-class RequestEntityTest extends BaseTest
+class RequestEntityTest extends TestCase
 {
 
 }

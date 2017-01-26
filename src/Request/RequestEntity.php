@@ -2,23 +2,33 @@
 
 namespace GnarPhp\Request;
 
+use GnarLabs\Tests\Requests\Mapper\Mapper;
+use GnarPhp\Request\Parser\Parser;
 use Illuminate\Validation\Factory as ValidatorFactory;
 use Illuminate\Http\Request;
 
-
-class RequestEntity extends Request
+class RequestEntity implements RequestEntityInterface
 {
+    /**
+     * @var Request
+     */
+    protected $request;
 
     /**
      * @var string
      */
-    protected $method = 'all';
+    protected $accessor = 'all';
     
     /**
      * @example ['field' => 'required|string']
      * @var array
      */
     protected $fields = [];
+
+    /**
+     * @var array
+     */
+    protected $map = null;
 
     /**
      * @var array
@@ -35,8 +45,6 @@ class RequestEntity extends Request
      */
     protected $validator;
 
-    
-
     /**
      * @var array
      */
@@ -52,35 +60,45 @@ class RequestEntity extends Request
      */
     protected $lang = 'en';
 
+    /**
+     * @var
+     */
+    protected $parser = Parser::class;
 
-    public function __construct(array $query, array $request, array $attributes, array $cookies, array $files, array $server, $content)
+    public function __construct(Request $request)
     {
-        parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
+       $this->request = $request;
+        if($this->useValidator) {
+            $this->validate();
+        }
+        if(!is_null($this->map) && class_exists($this->map)) {
+            $this->mapFields();
+        }
     }
 
-    /**
-     * @param array|null $validatorMessages
-     * @param array|null $validatorCustomAttributes
-     * @return Validator
-     */
-    public function validate(array $validatorMessages = null, array $validatorCustomAttributes = null)
+    protected function mapFields()
     {
-        if(!is_null($validatorMessages)) {
-            $this->validatorMessages = $validatorMessages;
-        }
+        $mapper = new $this->map();
+        $this->data = $mapper->transform();
+    }
 
-        if(!is_null($validatorCustomAttributes)) {
-            $this->validatorCustomAttributes = $validatorCustomAttributes;
-        }
+    protected function parse()
+    {
+        $fields = array_keys($this->fields);
+        $accessor = $this->accessor;
+        $parser = new $this->parser($this->request, $fields);
+        $this->data = $parser->$accessor();
+    }
 
+
+    public function validate()
+    {
         $this->validator = $this->setupValidator()->make(
-            $this->requestData,
+            $this->data,
             $this->fields,
             $this->validatorMessages,
             $this->validatorCustomAttributes
         );
-
-        return $this->validator;
     }
 
     /**
@@ -97,6 +115,22 @@ class RequestEntity extends Request
         return new \Illuminate\Validation\Factory(new \Symfony\Component\Translation\Translator($this->lang));
     }
 
-    
+    public function __get($name)
+    {
+        return $this->data[$name] ?? null;
+    }
+
+    /**
+     * @return string
+     */
+    public function toJson() : string
+    {
+        return json_encode($this->data);
+    }
+
+    public function toArray() : array
+    {
+        return (array) $this->data;
+    }
 
 }

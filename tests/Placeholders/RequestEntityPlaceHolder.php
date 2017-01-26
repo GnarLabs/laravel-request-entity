@@ -1,10 +1,10 @@
 <?php
 
-namespace GnarLabsTests\Placeholders;
+namespace GnarLabs\Tests\Placeholders;
 
 use GnarPhp\Request\RequestEntity;
 
-class RequestEntityPlaceHolder extends RequestEntity
+class GoodPlaceHolder extends RequestEntity
 {
 
     
